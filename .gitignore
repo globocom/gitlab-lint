@@ -4,5 +4,5 @@ build
 # Editor config files
 .vscode
 
-glint
-data
+gitlab-lint
+_data
