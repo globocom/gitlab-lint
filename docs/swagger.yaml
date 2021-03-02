@@ -1,0 +1,136 @@
+basePath: /api/v1
+definitions:
+  rules.Level:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      total:
+        type: integer
+    type: object
+  rules.Stats:
+    properties:
+      createdAt:
+        type: string
+      gitlabProjectsCount:
+        type: integer
+      projectsCount:
+        type: integer
+      registeredRulesCount:
+        type: integer
+      rulesCount:
+        type: integer
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  license:
+    name: BSD-3-Clause License
+    url: https://opensource.org/licenses/BSD-3-Clause
+  title: gitlab-lint API
+  version: 0.1.0
+paths:
+  /levels:
+    get:
+      consumes:
+      - application/json
+      description: get levels
+      operationId: get-levels
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rules.Level'
+            type: array
+      summary: Show levels
+  /projects:
+    get:
+      consumes:
+      - application/json
+      description: get all projects
+      operationId: get-projects
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Show projects
+  /projects/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get project by ID
+      operationId: get-projects-by-id
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Show project by id
+  /rules:
+    get:
+      consumes:
+      - application/json
+      description: get all projects
+      operationId: get-rules
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Show rules
+  /rules/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get rule by ID
+      operationId: get-rules-by-id
+      parameters:
+      - description: Rule ID
+        in: path
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Show rule by id
+  /stats:
+    get:
+      consumes:
+      - application/json
+      description: get stats
+      operationId: get-stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rules.Stats'
+            type: array
+      summary: Show stats
+swagger: "2.0"

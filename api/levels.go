@@ -7,11 +7,19 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/labstack/echo/v4"
 	"github.com/globocom/gitlab-lint/rules"
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// levels godoc
+// @Summary Show levels
+// @Description get levels
+// @ID get-levels
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} rules.Level
+// @Router /levels [get]
 func (s *server) levels(c echo.Context) error {
 	pipeline := []bson.M{{"$group": bson.M{
 		"_id":   "$level",

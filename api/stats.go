@@ -13,6 +13,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+
+// stats godoc
+// @Summary Show stats
+// @Description get stats
+// @ID get-stats
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} rules.Stats
+// @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
 	opts := options.FindOne().SetSort(
 		bson.D{primitive.E{Key: "$natural", Value: -1}},
