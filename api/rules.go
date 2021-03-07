@@ -42,7 +42,7 @@ func (s *server) rules(c echo.Context) error {
 // @ID get-rules-by-id
 // @Accept json
 // @Produce json
-// @Param id path string false "Rule ID"
+// @Param id path string true "Rule ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /rules/{id} [get]
 func (s *server) rulesById(c echo.Context) error {
