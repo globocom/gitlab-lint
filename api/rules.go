@@ -18,8 +18,8 @@ import (
 // @Summary Show rules
 // @Description get all projects
 // @ID get-rules
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {object} interface{}
 // @Router /rules [get]
 func (s *server) rules(c echo.Context) error {
@@ -40,8 +40,8 @@ func (s *server) rules(c echo.Context) error {
 // @Summary Show rule by id
 // @Description get rule by ID
 // @ID get-rules-by-id
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param id path string false "Rule ID"
 // @Success 200 {object} interface{}
 // @Router /rules/{id} [get]

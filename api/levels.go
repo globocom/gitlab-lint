@@ -16,8 +16,8 @@ import (
 // @Summary Show levels
 // @Description get levels
 // @ID get-levels
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {array} rules.Level
 // @Router /levels [get]
 func (s *server) levels(c echo.Context) error {

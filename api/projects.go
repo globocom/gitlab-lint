@@ -19,8 +19,8 @@ import (
 // @Summary Show projects
 // @Description get all projects
 // @ID get-projects
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
@@ -54,8 +54,8 @@ func (s *server) projects(c echo.Context) error {
 // @Summary Show project by id
 // @Description get project by ID
 // @ID get-projects-by-id
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Param id path int false "Project ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /projects/{id} [get]

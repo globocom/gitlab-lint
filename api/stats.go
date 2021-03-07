@@ -18,8 +18,8 @@ import (
 // @Summary Show stats
 // @Description get stats
 // @ID get-stats
-// @Accept  json
-// @Produce  json
+// @Accept json
+// @Produce json
 // @Success 200 {array} rules.Stats
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
