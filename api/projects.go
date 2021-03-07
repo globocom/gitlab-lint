@@ -56,7 +56,7 @@ func (s *server) projects(c echo.Context) error {
 // @ID get-projects-by-id
 // @Accept json
 // @Produce json
-// @Param id path int false "Project ID"
+// @Param id path int true "Project ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /projects/{id} [get]
 func (s *server) projectById(c echo.Context) error {
