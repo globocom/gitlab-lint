@@ -20,7 +20,7 @@ import (
 // @ID get-rules
 // @Accept json
 // @Produce json
-// @Success 200 {object} interface{}
+// @Success 200 {array} interface{}
 // @Router /rules [get]
 func (s *server) rules(c echo.Context) error {
 	data := []rules.Ruler{}
@@ -43,7 +43,7 @@ func (s *server) rules(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string false "Rule ID"
-// @Success 200 {object} interface{}
+// @Success 200 {object} map[string]interface{}
 // @Router /rules/{id} [get]
 func (s *server) rulesById(c echo.Context) error {
 	id := c.Param("id")

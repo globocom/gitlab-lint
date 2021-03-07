@@ -6,13 +6,12 @@ package api
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
 	"github.com/globocom/gitlab-lint/rules"
+	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
 
 // stats godoc
 // @Summary Show stats
@@ -20,7 +19,7 @@ import (
 // @ID get-stats
 // @Accept json
 // @Produce json
-// @Success 200 {array} rules.Stats
+// @Success 200 {object} rules.Stats
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
 	opts := options.FindOne().SetSort(

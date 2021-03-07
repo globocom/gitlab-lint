@@ -3,7 +3,7 @@ PRECOMMIT_COMMAND := $(shell { command -v pre-commit; } 2>/dev/null)
 
 setup: pre-commit
 	@go get github.com/codegangsta/gin
-	@go get github.com/swaggo/swag/cmd/swag
+	@go get github.com/swaggo/swag/cmd/swag@v1.6.7
 	@go mod tidy
 	@go get .
 

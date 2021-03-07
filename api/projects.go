@@ -21,7 +21,7 @@ import (
 // @ID get-projects
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {array} rules.Project
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
 	pageStr := ""
