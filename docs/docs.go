@@ -18,7 +18,10 @@ var doc = `{
     "info": {
         "description": "{{.Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/globocom/gitlab-lint"
+        },
         "license": {
             "name": "BSD-3-Clause License",
             "url": "https://opensource.org/licenses/BSD-3-Clause"
@@ -67,8 +70,10 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rules.Project"
+                            }
                         }
                     }
                 }
@@ -90,7 +95,8 @@ var doc = `{
                         "type": "integer",
                         "description": "Project ID",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -119,7 +125,10 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
                         }
                     }
                 }
@@ -141,14 +150,16 @@ var doc = `{
                         "type": "string",
                         "description": "Rule ID",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -169,10 +180,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/rules.Stats"
-                            }
+                            "$ref": "#/definitions/rules.Stats"
                         }
                     }
                 }
@@ -194,6 +202,17 @@ var doc = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "rules.Project": {
+            "type": "object",
+            "properties": {
+                "rules": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
                 }
             }
         },
@@ -236,7 +255,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "gitlab-lint API",
-	Description: "",
+	Description: "gitlab-lint API data",
 }
 
 type s struct{}

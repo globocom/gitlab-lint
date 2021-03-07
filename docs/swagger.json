@@ -1,8 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
+        "description": "gitlab-lint API data",
         "title": "gitlab-lint API",
-        "contact": {},
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/globocom/gitlab-lint"
+        },
         "license": {
             "name": "BSD-3-Clause License",
             "url": "https://opensource.org/licenses/BSD-3-Clause"
@@ -51,8 +55,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rules.Project"
+                            }
                         }
                     }
                 }
@@ -74,7 +80,8 @@
                         "type": "integer",
                         "description": "Project ID",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -103,7 +110,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            }
                         }
                     }
                 }
@@ -125,14 +135,16 @@
                         "type": "string",
                         "description": "Rule ID",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -153,10 +165,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/rules.Stats"
-                            }
+                            "$ref": "#/definitions/rules.Stats"
                         }
                     }
                 }
@@ -178,6 +187,17 @@
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "rules.Project": {
+            "type": "object",
+            "properties": {
+                "rules": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
                 }
             }
         },
