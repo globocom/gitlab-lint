@@ -8,8 +8,21 @@ import (
 
 	"github.com/globocom/gitlab-lint/api"
 	_ "github.com/globocom/gitlab-lint/config"
+	_ "github.com/globocom/gitlab-lint/docs"
 )
 
+// @title gitlab-lint API
+// @version 0.1.0
+// @description gitlab-lint API data
+
+// @license.name BSD-3-Clause License
+// @license.url https://opensource.org/licenses/BSD-3-Clause
+
+// @contact.name API Support
+// @contact.url https://github.com/globocom/gitlab-lint
+
+// @host localhost:3000
+// @BasePath /api/v1
 func main() {
 	server, err := api.NewServer()
 	if err != nil {

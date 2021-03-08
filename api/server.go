@@ -10,11 +10,12 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	sentryecho "github.com/getsentry/sentry-go/echo"
+	"github.com/globocom/gitlab-lint/db"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/globocom/gitlab-lint/db"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 const Version = "0.1.0"
@@ -85,12 +86,13 @@ func NewServer() (Server, error) {
 
 	echoInstance.GET("/", server.index)
 	echoInstance.GET("/api/v1/projects", server.projects)
-	echoInstance.GET("/api/v1/projects/:id", server.projects)
+	echoInstance.GET("/api/v1/projects/:id", server.projectById)
 	echoInstance.GET("/api/v1/rules", server.rules)
-	echoInstance.GET("/api/v1/rules/:id", server.rules)
+	echoInstance.GET("/api/v1/rules/:id", server.rulesById)
 	echoInstance.GET("/api/v1/levels", server.levels)
 	echoInstance.GET("/api/v1/stats", server.stats)
 	echoInstance.GET("/healthcheck", server.healthcheck)
+	echoInstance.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	return server, nil
 }
