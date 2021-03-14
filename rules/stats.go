@@ -21,3 +21,7 @@ func (s Stats) Cast() Queryable {
 func (s Stats) GetCollectionName() string {
 	return "statistics"
 }
+
+func (s Stats) GetSearchableFields() []string {
+	return nil
+}

@@ -69,6 +69,11 @@ paths:
       - application/json
       description: get all projects
       operationId: get-projects
+      parameters:
+      - description: fuzzy search projects
+        in: query
+        name: q
+        type: string
       produces:
       - application/json
       responses:

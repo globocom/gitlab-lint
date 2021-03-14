@@ -21,6 +21,7 @@ import (
 // @ID get-projects
 // @Accept json
 // @Produce json
+// @Param q query string false "fuzzy search projects"
 // @Success 200 {array} rules.Project
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
@@ -43,7 +44,11 @@ func (s *server) projects(c echo.Context) error {
 	optProjects.SetSkip(int64((page - 1) * perPage))
 	optProjects.SetLimit(int64(perPage))
 
-	data, err := s.db.GetAll(&rules.Project{}, nil, optProjects)
+	project := rules.Project{}
+	searchStr := c.QueryParam("q")
+	searchQuery := s.db.BuildSearchQueryFromString(searchStr, project)
+
+	data, err := s.db.GetAll(&project, searchQuery, optProjects)
 	if err != nil {
 		return err
 	}

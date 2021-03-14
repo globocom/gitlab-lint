@@ -67,7 +67,7 @@ current project houses an empty repository.
 
 ### Creating new rules
 
-Rules must implement the `Ruler` interface and they must have at least the
+Rules must implement the [Ruler][file.rules.ruler] interface and they must have at least the
 following fields on their struct:
 
 ```go
@@ -76,7 +76,8 @@ type Ruler interface {
 	GetSlug() string
 	GetLevel() string
 }
-
+```
+```go
 type MyAwesomeRule struct {
 	Description string `json:"description"`
 	ID          string `json:"ruleId"`
@@ -118,7 +119,6 @@ your new rule being returned by running a GET to `/api/v1/rules`:
     "level": "error",
     "name": "My Awesome Rule"
   }
-  (...)
 ]
 ```
 
@@ -128,5 +128,6 @@ Fork the repository and send your pull-requests.
 
 
 [personal_access_tokens]: https://docs.gitlab.com/ce/user/profile/personal_access_tokens.html
+[file.rules.ruler]: ./rules/ruler.go
 [file.rules.levels]: ./rules/levels.go
 [file.rules.my_registry]: ./rules/my_registry.go

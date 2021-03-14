@@ -66,6 +66,14 @@ var doc = `{
                 ],
                 "summary": "Show projects",
                 "operationId": "get-projects",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "fuzzy search projects",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

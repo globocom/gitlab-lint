@@ -20,3 +20,7 @@ func (p Project) Cast() Queryable {
 func (p Project) GetCollectionName() string {
 	return "projects"
 }
+
+func (p Project) GetSearchableFields() []string {
+	return []string{"name", "weburl", "pathwithnamespace", "description"}
+}
