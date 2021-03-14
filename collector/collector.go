@@ -19,7 +19,7 @@ import (
 func processProjects(projects map[string]rules.Project) error {
 	dbInstance, err := db.NewMongoSession()
 	if err != nil {
-		log.Errorf("[Main] Error on create mongo session: %v", err)
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
 		return err
 	}
 
@@ -50,7 +50,7 @@ func processProjects(projects map[string]rules.Project) error {
 func processRules(rulesList []rules.Rule) error {
 	dbInstance, err := db.NewMongoSession()
 	if err != nil {
-		log.Errorf("[Main] Error on create mongo session: %v", err)
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
 		return err
 	}
 
@@ -81,7 +81,7 @@ func processRules(rulesList []rules.Rule) error {
 func insertStats(r *rules.Registry, projectsCount int) error {
 	dbInstance, err := db.NewMongoSession()
 	if err != nil {
-		log.Errorf("[Main] Error on create mongo session: %v", err)
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
 		return err
 	}
 
@@ -156,14 +156,14 @@ func main() {
 	}
 
 	if err := processRules(rules.MyRegistry.Rules); err != nil {
-		log.Errorf("[Main] Error on insert rules data: %v", err)
+		log.Errorf("[Collector] Error on insert rules data: %v", err)
 	}
 
 	if err := processProjects(rules.MyRegistry.Projects); err != nil {
-		log.Errorf("[Main] Error on insert projects data: %v", err)
+		log.Errorf("[Collector] Error on insert projects data: %v", err)
 	}
 
 	if err := insertStats(rules.MyRegistry, gitlabProjectsCount); err != nil {
-		log.Errorf("[Main] Error on insert statistics data: %v", err)
+		log.Errorf("[Collector] Error on insert statistics data: %v", err)
 	}
 }
