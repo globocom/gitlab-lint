@@ -24,6 +24,10 @@ definitions:
         type: string
       gitlabProjectsCount:
         type: integer
+      levelsCount:
+        additionalProperties:
+          type: integer
+        type: object
       projectsCount:
         type: integer
       registeredRulesCount:

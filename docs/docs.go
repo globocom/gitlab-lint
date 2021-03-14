@@ -225,6 +225,12 @@ var doc = `{
                 "gitlabProjectsCount": {
                     "type": "integer"
                 },
+                "levelsCount": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
                 "projectsCount": {
                     "type": "integer"
                 },

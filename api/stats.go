@@ -22,12 +22,18 @@ import (
 // @Success 200 {object} rules.Stats
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
-	opts := options.FindOne().SetSort(
-		bson.D{primitive.E{Key: "$natural", Value: -1}},
-	)
-	stats := &rules.Stats{}
-	if err := s.db.Get(stats, nil, opts); err != nil {
+	opts := options.Find()
+	opts.SetSort(bson.D{primitive.E{Key: "_id", Value: -1}})
+	opts.SetLimit(1)
+
+	statsAll, err := s.db.GetAll(&rules.Stats{}, nil, opts)
+	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, stats)
+
+	if len(statsAll) <= 0 {
+		return c.JSON(http.StatusOK, rules.Stats{})
+	}
+
+	return c.JSON(http.StatusOK, statsAll[0])
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/globocom/gitlab-lint/rules"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // levels godoc
@@ -21,21 +23,26 @@ import (
 // @Success 200 {array} rules.Level
 // @Router /levels [get]
 func (s *server) levels(c echo.Context) error {
-	pipeline := []bson.M{{"$group": bson.M{
-		"_id":   "$level",
-		"count": bson.M{"$sum": 1},
-	}}}
+	opts := options.Find()
+	opts.SetSort(bson.D{primitive.E{Key: "_id", Value: -1}})
+	opts.SetLimit(1)
 
-	data, err := s.db.Aggregate(&rules.Rule{}, pipeline)
+	statsAll, err := s.db.GetAll(&rules.Stats{}, nil, opts)
 	if err != nil {
 		return err
 	}
 
 	levels := []rules.Level{}
-	for _, rule := range data {
-		ruleId := rule["_id"].(string)
-		level := rules.AllSeverities[ruleId]
-		level.Total = rule["count"].(int32)
+
+	if len(statsAll) <= 0 {
+		return c.JSON(http.StatusOK, levels)
+	}
+
+	stats := statsAll[0].(*rules.Stats)
+
+	for levelID, levelCount := range stats.LevelsCount {
+		level := rules.AllSeverities[levelID]
+		level.Total = int32(levelCount)
 		levels = append(levels, level)
 	}
 

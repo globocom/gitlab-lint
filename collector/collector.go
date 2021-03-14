@@ -85,12 +85,28 @@ func insertStats(r *rules.Registry, projectsCount int) error {
 		return err
 	}
 
+	pipeline := []bson.M{{"$group": bson.M{
+		"_id":   "$level",
+		"count": bson.M{"$sum": 1},
+	}}}
+
+	levelsData, err := dbInstance.Aggregate(&rules.Rule{}, pipeline)
+	if err != nil {
+		return err
+	}
+
+	levelsCount := map[string]int32{}
+	for _, level := range levelsData {
+		levelsCount[level["_id"].(string)] = level["count"].(int32)
+	}
+
 	stats := &rules.Stats{
 		CreatedAt:            time.Now().UTC(),
-		RegisteredRulesCount: len(r.RulesFn),
-		ProjectsCount:        len(r.Projects),
-		RulesCount:           len(r.Rules),
 		GitlabProjectsCount:  projectsCount,
+		LevelsCount:          levelsCount,
+		ProjectsCount:        len(r.Projects),
+		RegisteredRulesCount: len(r.RulesFn),
+		RulesCount:           len(r.Rules),
 	}
 
 	log.Debug("[Collector] Inserting collector statistics")
