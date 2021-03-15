@@ -23,12 +23,12 @@ type mongoCollection struct {
 
 type DB interface {
 	Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error)
+	BuildSearchQueryFromString(q string, d rules.Queryable) bson.M
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
 	GetAll(d rules.Queryable, q bson.M, o *options.FindOptions) ([]rules.Queryable, error)
 	Insert(d rules.Queryable) (*mongo.InsertOneResult, error)
 	InsertMany(d rules.Queryable, i []interface{}) (*mongo.InsertManyResult, error)
-	BuildSearchQueryFromString(searchStr string, d rules.Queryable) bson.M
 }
 
 func newDBContext() (context.Context, context.CancelFunc) {
@@ -126,18 +126,16 @@ func (m mongoCollection) GetAll(d rules.Queryable, q bson.M, opts *options.FindO
 	return items, nil
 }
 
-func (m mongoCollection) BuildSearchQueryFromString(searchStr string, d rules.Queryable) bson.M {
+func (m mongoCollection) BuildSearchQueryFromString(q string, d rules.Queryable) bson.M {
 	fields := d.GetSearchableFields()
-	if searchStr == "" || fields == nil {
+	if q == "" || fields == nil {
 		return nil
 	}
 
-	searchRegex := bson.M{"$regex": primitive.Regex{Pattern: searchStr, Options: "i"}}
+	searchRegex := bson.M{"$regex": primitive.Regex{Pattern: q, Options: "i"}}
 	queryFields := []bson.M{}
 	for _, field := range fields {
-		q := bson.M{}
-		q[field] = searchRegex
-		queryFields = append(queryFields, q)
+		queryFields = append(queryFields, bson.M{field: searchRegex})
 	}
 
 	return bson.M{"$or": queryFields}
