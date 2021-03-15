@@ -25,6 +25,10 @@ func (r Rule) GetCollectionName() string {
 	return "rules"
 }
 
+func (r Rule) GetSearchableFields() []string {
+	return nil
+}
+
 func NewRule(p *gitlab.Project, r Ruler) Rule {
 	return Rule{
 		Description:       p.Description,

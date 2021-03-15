@@ -7,10 +7,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/globocom/gitlab-lint/rules"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/globocom/gitlab-lint/rules"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -22,6 +23,7 @@ type mongoCollection struct {
 
 type DB interface {
 	Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error)
+	BuildSearchQueryFromString(d rules.Queryable, q string) bson.M
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
 	GetAll(d rules.Queryable, q bson.M, o *options.FindOptions) ([]rules.Queryable, error)
@@ -122,4 +124,19 @@ func (m mongoCollection) GetAll(d rules.Queryable, q bson.M, opts *options.FindO
 	}
 
 	return items, nil
+}
+
+func (m mongoCollection) BuildSearchQueryFromString(d rules.Queryable, q string) bson.M {
+	fields := d.GetSearchableFields()
+	if q == "" || fields == nil {
+		return nil
+	}
+
+	searchRegex := bson.M{"$regex": primitive.Regex{Pattern: q, Options: "i"}}
+	queryFields := []bson.M{}
+	for _, field := range fields {
+		queryFields = append(queryFields, bson.M{field: searchRegex})
+	}
+
+	return bson.M{"$or": queryFields}
 }

@@ -6,4 +6,5 @@ package rules
 type Queryable interface {
 	Cast() Queryable
 	GetCollectionName() string
+	GetSearchableFields() []string
 }
