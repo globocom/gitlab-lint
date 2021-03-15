@@ -23,7 +23,7 @@ type mongoCollection struct {
 
 type DB interface {
 	Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error)
-	BuildSearchQueryFromString(q string, d rules.Queryable) bson.M
+	BuildSearchQueryFromString(d rules.Queryable, q string) bson.M
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
 	GetAll(d rules.Queryable, q bson.M, o *options.FindOptions) ([]rules.Queryable, error)
@@ -126,7 +126,7 @@ func (m mongoCollection) GetAll(d rules.Queryable, q bson.M, opts *options.FindO
 	return items, nil
 }
 
-func (m mongoCollection) BuildSearchQueryFromString(q string, d rules.Queryable) bson.M {
+func (m mongoCollection) BuildSearchQueryFromString(d rules.Queryable, q string) bson.M {
 	fields := d.GetSearchableFields()
 	if q == "" || fields == nil {
 		return nil

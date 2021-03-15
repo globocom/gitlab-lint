@@ -46,7 +46,7 @@ func (s *server) projects(c echo.Context) error {
 
 	project := &rules.Project{}
 	searchStr := c.QueryParam("q")
-	searchQuery := s.db.BuildSearchQueryFromString(searchStr, project)
+	searchQuery := s.db.BuildSearchQueryFromString(project, searchStr)
 
 	data, err := s.db.GetAll(project, searchQuery, optProjects)
 	if err != nil {
