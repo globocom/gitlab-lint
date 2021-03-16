@@ -5,6 +5,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/globocom/gitlab-lint/rules"
@@ -14,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type mongoCollection struct {
@@ -39,11 +41,18 @@ func newDBContext() (context.Context, context.CancelFunc) {
 func NewMongoSession() (DB, error) {
 	log.Debug("[DB] New mongo session")
 	dbURI := viper.GetString("mongodb.endpoint")
+
 	ctx, _ := newDBContext()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURI))
 	if err != nil {
 		log.Errorf("[DB] Error on create mongo session: %s", err)
+		return nil, err
 	}
+
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+		return nil, fmt.Errorf("failed to connect to server `%v`: %w", dbURI, err)
+	}
+
 	mongo := &mongoCollection{
 		session: client,
 		dbName:  viper.GetString("mongodb.name"),
