@@ -84,6 +84,10 @@ func NewServer() (Server, error) {
 		},
 	}))
 
+	echoInstance.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
+	}))
+
 	echoInstance.GET("/", server.index)
 	echoInstance.GET("/api/v1/projects", server.projects)
 	echoInstance.GET("/api/v1/projects/:id", server.projectById)
