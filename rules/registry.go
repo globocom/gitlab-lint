@@ -3,9 +3,14 @@
 
 package rules
 
-import "github.com/xanzy/go-gitlab"
+import (
+	"sync"
+
+	"github.com/xanzy/go-gitlab"
+)
 
 type Registry struct {
+	mu       sync.Mutex
 	Projects map[string]Project
 	Rules    []Rule
 	RulesFn  map[string]Ruler
@@ -23,6 +28,10 @@ func (r *Registry) ProcessProject(c *gitlab.Client, p *gitlab.Project, ruler Rul
 	if !result {
 		return false
 	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	rule := NewRule(p, ruler)
 	r.Rules = append(r.Rules, rule)
 
