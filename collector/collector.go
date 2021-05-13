@@ -4,6 +4,7 @@
 package main
 
 import (
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -117,6 +118,20 @@ func insertStats(r *rules.Registry, projectsCount int) error {
 	return nil
 }
 
+func worker(projects []*gitlab.Project, git *gitlab.Client, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for _, project := range projects {
+		// Only non-forks
+		if project.ForkedFromProject != nil {
+			continue
+		}
+
+		for _, rulesFn := range rules.MyRegistry.RulesFn {
+			rules.MyRegistry.ProcessProject(git, project, rulesFn)
+		}
+	}
+}
+
 func main() {
 	git, err := gitlab.NewClient(
 		viper.GetString("gitlab.token"),
@@ -140,36 +155,27 @@ func main() {
 	}
 
 	var gitlabProjectsCount int
+	var wg sync.WaitGroup
 
 	for {
 		projects, resp, err := git.Projects.ListProjects(opt)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		gitlabProjectsCount = resp.TotalItems
-
 		log.Debugf(
 			"[Collector] Page %d of %d", resp.CurrentPage, resp.TotalPages,
 		)
 
-		for _, project := range projects {
-			// Only non-forks
-			if project.ForkedFromProject != nil {
-				continue
-			}
+		wg.Add(1)
+		go worker(projects, git, &wg)
 
-			for _, rulesFn := range rules.MyRegistry.RulesFn {
-				rules.MyRegistry.ProcessProject(git, project, rulesFn)
-			}
-		}
-
+		gitlabProjectsCount = resp.TotalItems
 		if resp.CurrentPage >= resp.TotalPages {
 			break
 		}
-
 		opt.Page = resp.NextPage
 	}
+	wg.Wait()
 
 	if err := processRules(rules.MyRegistry.Rules); err != nil {
 		log.Errorf("[Collector] Error on insert rules data: %v", err)
