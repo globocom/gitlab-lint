@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/globocom/gitlab-lint/db"
 	"github.com/globocom/gitlab-lint/rules"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,31 +22,9 @@ import (
 // @Success 200 {array} rules.Project
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
-	pageStr := ""
-	pageStr = c.QueryParam("page")
-	if pageStr == "" {
-		pageStr = "1"
-	}
 
-	page, err := strconv.Atoi(pageStr)
-	if err != nil {
-		return err
-	}
-
-	project := &rules.Project{}
-
-	searchStr := c.QueryParam("q")
-
-	filter := db.FindFilter{
-		Page: page,
-		Sort: db.SortOption{
-			Field: "pathwithnamespace",
-			Order: db.SortAscending,
-		},
-		Query: db.BuildSearchQueryFromString(project, searchStr),
-	}
-
-	data, err := s.db.GetAll(project, filter)
+	filter := CreateFilterFromQueryParam(&rules.Project{}, c.QueryParams())
+	data, err := s.db.GetAll(&rules.Project{}, filter)
 	if err != nil {
 		return err
 	}
@@ -77,13 +54,9 @@ func (s *server) projectById(c echo.Context) error {
 		return err
 	}
 
-	filter := db.FindFilter{
-		Sort: db.SortOption{
-			Field: "pathWithNamespace",
-			Order: db.SortAscending,
-		},
-		Query: bson.M{"projectId": idInt},
-	}
+	filter := CreateFilterFromQueryParam(&rules.Rule{}, c.QueryParams())
+	filter.Sort.Field = "pathWithNamespace"
+	filter.Query = bson.M{"projectId": idInt}
 
 	projectRules, err := s.db.GetAll(&rules.Rule{}, filter)
 	if err != nil {

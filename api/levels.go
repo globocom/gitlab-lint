@@ -21,12 +21,11 @@ import (
 // @Success 200 {array} rules.Level
 // @Router /levels [get]
 func (s *server) levels(c echo.Context) error {
-	filter := db.FindFilter{
-		PerPage: 1,
-		Sort: db.SortOption{
-			Field: "_id",
-			Order: db.SortDescending,
-		},
+	filter := CreateFilterFromQueryParam(&rules.Stats{}, c.QueryParams())
+	filter.PerPage = 1
+	filter.Sort = db.SortOption{
+		Field: "_id",
+		Order: db.SortDescending,
 	}
 	statsAll, err := s.db.GetAll(&rules.Stats{}, filter)
 	if err != nil {

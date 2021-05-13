@@ -20,12 +20,12 @@ import (
 // @Success 200 {object} rules.Stats
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
-	filter := db.FindFilter{
-		PerPage: 1,
-		Sort: db.SortOption{
-			Field: "_id",
-			Order: db.SortDescending,
-		},
+
+	filter := CreateFilterFromQueryParam(&rules.Stats{}, c.QueryParams())
+	filter.PerPage = 1
+	filter.Sort = db.SortOption{
+		Field: "_id",
+		Order: db.SortDescending,
 	}
 
 	statsAll, err := s.db.GetAll(&rules.Stats{}, filter)

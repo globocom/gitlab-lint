@@ -47,13 +47,12 @@ func (s *server) rules(c echo.Context) error {
 func (s *server) rulesById(c echo.Context) error {
 	id := c.Param("id")
 
-	filter := db.FindFilter{
-		Sort: db.SortOption{
-			Field: "pathWithNamespace",
-			Order: db.SortAscending,
-		},
-		Query: bson.M{"ruleId": id},
+	filter := CreateFilterFromQueryParam(&rules.Rule{}, c.QueryParams())
+	filter.Sort = db.SortOption{
+		Field: "pathWithNamespace",
+		Order: db.SortAscending,
 	}
+	filter.Query = bson.M{"ruleId": id}
 
 	projects, err := s.db.GetAll(&rules.Rule{}, filter)
 	if err != nil {
