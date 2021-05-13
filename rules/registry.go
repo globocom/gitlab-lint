@@ -26,16 +26,13 @@ func (r *Registry) AddRule(ruler Ruler) {
 func (r *Registry) ProcessProject(c *gitlab.Client, p *gitlab.Project, ruler Ruler) {
 	result := ruler.Run(c, p)
 
-	rule = NewRule(p, ruler)
-	if result {
-		r.Rules = append(r.Rules, rule)
-	}
-
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	rule := NewRule(p, ruler)
-	r.Rules = append(r.Rules, rule)
+	if result {
+		r.Rules = append(r.Rules, rule)
+	}
 
 	if _, ok := r.Projects[p.PathWithNamespace]; !ok {
 		newRules := map[string]int{rule.Level: 0}
