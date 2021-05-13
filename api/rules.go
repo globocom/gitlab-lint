@@ -7,11 +7,10 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/globocom/gitlab-lint/db"
 	"github.com/globocom/gitlab-lint/rules"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // rules godoc
@@ -48,11 +47,15 @@ func (s *server) rules(c echo.Context) error {
 func (s *server) rulesById(c echo.Context) error {
 	id := c.Param("id")
 
-	query := bson.M{"ruleId": id}
-	optRules := options.Find().SetSort(
-		bson.D{primitive.E{Key: "pathWithNamespace", Value: 1}},
-	)
-	projects, err := s.db.GetAll(&rules.Rule{}, query, optRules)
+	filter := db.FindFilter{
+		Sort: db.SortOption{
+			Field: "pathWithNamespace",
+			Order: db.SortAscending,
+		},
+		Query: bson.M{"ruleId": id},
+	}
+
+	projects, err := s.db.GetAll(&rules.Rule{}, filter)
 	if err != nil {
 		return err
 	}

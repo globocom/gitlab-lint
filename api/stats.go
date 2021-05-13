@@ -6,11 +6,9 @@ package api
 import (
 	"net/http"
 
+	"github.com/globocom/gitlab-lint/db"
 	"github.com/globocom/gitlab-lint/rules"
 	"github.com/labstack/echo/v4"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // stats godoc
@@ -22,11 +20,15 @@ import (
 // @Success 200 {object} rules.Stats
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
-	opts := options.Find()
-	opts.SetSort(bson.D{primitive.E{Key: "_id", Value: -1}})
-	opts.SetLimit(1)
+	filter := db.FindFilter{
+		PerPage: 1,
+		Sort: db.SortOption{
+			Field: "_id",
+			Order: db.SortDescending,
+		},
+	}
 
-	statsAll, err := s.db.GetAll(&rules.Stats{}, nil, opts)
+	statsAll, err := s.db.GetAll(&rules.Stats{}, filter)
 	if err != nil {
 		return err
 	}
