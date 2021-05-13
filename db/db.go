@@ -23,12 +23,28 @@ type mongoCollection struct {
 	session *mongo.Client
 }
 
+const (
+	SortAscending  = 1
+	SortDescending = -1
+)
+
+type SortOption struct {
+	Field string
+	Order int
+}
+
+type FindFilter struct {
+	Page    int
+	PerPage int
+	Sort    SortOption
+	Query   primitive.M
+}
+
 type DB interface {
 	Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error)
-	BuildSearchQueryFromString(d rules.Queryable, q string) bson.M
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
-	GetAll(d rules.Queryable, q bson.M, o *options.FindOptions) ([]rules.Queryable, error)
+	GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error)
 	Insert(d rules.Queryable) (*mongo.InsertOneResult, error)
 	InsertMany(d rules.Queryable, i []interface{}) (*mongo.InsertManyResult, error)
 }
@@ -58,6 +74,21 @@ func NewMongoSession() (DB, error) {
 		dbName:  viper.GetString("mongodb.name"),
 	}
 	return mongo, err
+}
+
+func BuildSearchQueryFromString(d rules.Queryable, q string) bson.M {
+	fields := d.GetSearchableFields()
+	if q == "" || fields == nil {
+		return nil
+	}
+
+	searchRegex := bson.M{"$regex": primitive.Regex{Pattern: q, Options: "i"}}
+	queryFields := []bson.M{}
+	for _, field := range fields {
+		queryFields = append(queryFields, bson.M{field: searchRegex})
+	}
+
+	return bson.M{"$or": queryFields}
 }
 
 func (m *mongoCollection) Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error) {
@@ -104,11 +135,35 @@ func (m *mongoCollection) Get(d rules.Queryable, q bson.M, o *options.FindOneOpt
 	return collection.FindOne(ctx, q).Decode(d)
 }
 
-func (m mongoCollection) GetAll(d rules.Queryable, q bson.M, opts *options.FindOptions) ([]rules.Queryable, error) {
+func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error) {
 	log.Debug("[DB] GetAll...")
 	collection := m.session.Database(m.dbName).Collection(d.GetCollectionName())
 	ctx, _ := newDBContext()
-	cur, err := collection.Find(ctx, q, opts)
+
+	opts := options.Find()
+	if filter.Sort.Field != "" {
+		opts.SetSort(
+			bson.D{primitive.E{Key: filter.Sort.Field, Value: filter.Sort.Order}},
+		)
+	}
+
+	perPage := viper.GetInt("db.PerPage")
+	if filter.PerPage > 0 {
+		if filter.PerPage <= viper.GetInt("db.maxPerPage") {
+			perPage = filter.PerPage
+		} else {
+			perPage = viper.GetInt("db.maxPerPage")
+		}
+	}
+
+	page := 0
+	if filter.Page > 0 {
+		page = filter.Page - 1
+	}
+	opts.SetSkip(int64(page * perPage))
+	opts.SetLimit(int64(perPage))
+
+	cur, err := collection.Find(ctx, filter.Query, opts)
 	if err != nil {
 		log.Errorf("[DB] Find: %s", err)
 		return nil, err
@@ -133,19 +188,4 @@ func (m mongoCollection) GetAll(d rules.Queryable, q bson.M, opts *options.FindO
 	}
 
 	return items, nil
-}
-
-func (m mongoCollection) BuildSearchQueryFromString(d rules.Queryable, q string) bson.M {
-	fields := d.GetSearchableFields()
-	if q == "" || fields == nil {
-		return nil
-	}
-
-	searchRegex := bson.M{"$regex": primitive.Regex{Pattern: q, Options: "i"}}
-	queryFields := []bson.M{}
-	for _, field := range fields {
-		queryFields = append(queryFields, bson.M{field: searchRegex})
-	}
-
-	return bson.M{"$or": queryFields}
 }
