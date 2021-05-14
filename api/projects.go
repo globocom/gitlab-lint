@@ -19,16 +19,19 @@ import (
 // @Accept json
 // @Produce json
 // @Param q query string false "fuzzy search projects"
-// @Success 200 {array} rules.Project
+// @Success 200 {object} Response{Data=rules.Project}
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
-
 	filter := CreateFilterFromQueryParam(&rules.Project{}, c.QueryParams())
 	data, err := s.db.GetAll(&rules.Project{}, filter)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, data)
+	response, err := s.NewDataResponse(&rules.Project{}, filter, data)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, response)
 }
 
 // projects godoc
@@ -38,7 +41,7 @@ func (s *server) projects(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Project ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} Response{Data=map[string]interface{}}
 // @Router /projects/{id} [get]
 func (s *server) projectById(c echo.Context) error {
 	id := c.Param("id")
@@ -55,7 +58,6 @@ func (s *server) projectById(c echo.Context) error {
 	}
 
 	filter := CreateFilterFromQueryParam(&rules.Rule{}, c.QueryParams())
-	filter.Sort.Field = "pathWithNamespace"
 	filter.Query = bson.M{"projectId": idInt}
 
 	projectRules, err := s.db.GetAll(&rules.Rule{}, filter)
@@ -68,5 +70,10 @@ func (s *server) projectById(c echo.Context) error {
 		"rules":   projectRules,
 	}
 
-	return c.JSON(http.StatusOK, data)
+	response, err := s.NewDataResponse(&rules.Rule{}, filter, data)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

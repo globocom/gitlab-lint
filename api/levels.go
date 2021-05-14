@@ -18,7 +18,7 @@ import (
 // @ID get-levels
 // @Accept json
 // @Produce json
-// @Success 200 {array} rules.Level
+// @Success 200 {object} Response{Data=map[string]int}
 // @Router /levels [get]
 func (s *server) levels(c echo.Context) error {
 	filter := CreateFilterFromQueryParam(&rules.Stats{}, c.QueryParams())
@@ -51,5 +51,15 @@ func (s *server) levels(c echo.Context) error {
 		return levels[i].Name < levels[j].Name
 	})
 
-	return c.JSON(http.StatusOK, levels)
+	response := Response{
+		Meta: MetaResponse{
+			CurrentPage:  1,
+			PerPage:      1,
+			TotalOfItems: 1,
+			TotalOfPages: 1,
+		},
+		Data: levels,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

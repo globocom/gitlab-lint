@@ -19,7 +19,7 @@ import (
 // @ID get-rules
 // @Accept json
 // @Produce json
-// @Success 200 {array} interface{}
+// @Success 200 {object} Response{Data=rules.Rule}
 // @Router /rules [get]
 func (s *server) rules(c echo.Context) error {
 	data := []rules.Ruler{}
@@ -32,7 +32,17 @@ func (s *server) rules(c echo.Context) error {
 		return data[i].GetSlug() < data[j].GetSlug()
 	})
 
-	return c.JSON(http.StatusOK, data)
+	response := Response{
+		Meta: MetaResponse{
+			CurrentPage:  1,
+			PerPage:      len(data),
+			TotalOfItems: len(data),
+			TotalOfPages: 1,
+		},
+		Data: data,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // rules godoc
@@ -42,7 +52,7 @@ func (s *server) rules(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Rule ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} Response{Data=map[string]interface{}}
 // @Router /rules/{id} [get]
 func (s *server) rulesById(c echo.Context) error {
 	id := c.Param("id")
@@ -63,5 +73,16 @@ func (s *server) rulesById(c echo.Context) error {
 		"rule":     ruler,
 		"projects": projects,
 	}
-	return c.JSON(http.StatusOK, data)
+
+	response := Response{
+		Meta: MetaResponse{
+			CurrentPage:  1,
+			PerPage:      len(data),
+			TotalOfItems: len(data),
+			TotalOfPages: 1,
+		},
+		Data: data,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
