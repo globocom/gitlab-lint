@@ -123,6 +123,36 @@ func insertStats(r *rules.Registry) error {
 	return nil
 }
 
+func createIssues(git *gitlab.Client, projectID int, ruleID string) error {
+	dbInstance, err := db.NewMongoSession()
+	if err != nil {
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
+		return err
+	}
+
+	// gitlabIssue, _, err := git.Issues.GetIssue(projectID, 1)
+	// if err != nil {
+	// 	return err
+	// }
+
+	createIssueOptions := &gitlab.CreateIssueOptions{
+		Title:       gitlab.String("Gitlab lint test"),
+		Description: gitlab.String("This is description of an issue"),
+	}
+
+	gitlabIssue, _, err := git.Issues.CreateIssue(projectID, createIssueOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	issue := rules.NewIssue(projectID, ruleID, gitlabIssue.IID)
+	if _, err := dbInstance.Insert(issue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func worker(projects []*gitlab.Project, git *gitlab.Client, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for _, project := range projects {
@@ -153,7 +183,7 @@ func main() {
 			Page:    1,
 		},
 		OrderBy:          gitlab.String("path"),
-		Search:           gitlab.String(""),
+		Search:           gitlab.String("sitemap-crawler"),
 		SearchNamespaces: gitlab.Bool(true),
 		Sort:             gitlab.String("asc"),
 		Statistics:       gitlab.Bool(true),
@@ -190,5 +220,11 @@ func main() {
 
 	if err := insertStats(rules.MyRegistry); err != nil {
 		log.Errorf("[Collector] Error on insert statistics data: %v", err)
+	}
+
+	projectID := 5896
+	ruleID := "without-readme"
+	if err := createIssues(git, projectID, ruleID); err != nil {
+		log.Errorf("[Collector] Error on create issues data: %v", err)
 	}
 }
