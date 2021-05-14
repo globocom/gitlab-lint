@@ -141,9 +141,11 @@ func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Q
 	ctx, _ := newDBContext()
 
 	opts := options.Find()
-	opts.SetSort(
-		bson.D{primitive.E{Key: filter.Sort.Field, Value: filter.Sort.Order}},
-	)
+	if filter.Sort.Field != "" {
+		opts.SetSort(
+			bson.D{primitive.E{Key: filter.Sort.Field, Value: filter.Sort.Order}},
+		)
+	}
 
 	perPage := viper.GetInt("db.PerPage")
 	if filter.PerPage > 0 {
