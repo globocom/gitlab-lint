@@ -10,3 +10,18 @@ type Ruler interface {
 	GetSlug() string
 	GetLevel() string
 }
+
+type RulerImpl struct {
+	ID          string `json:"ruleId"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Level       string `json:"level"`
+}
+
+func (e RulerImpl) GetSlug() string {
+	return e.ID
+}
+
+func (e RulerImpl) GetLevel() string {
+	return e.Level
+}

@@ -9,6 +9,12 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+var MyRegistry = &Registry{
+	Projects: map[string]Project{},
+	Rules:    []Rule{},
+	RulesFn:  map[string]Ruler{},
+}
+
 type Registry struct {
 	mu       sync.Mutex
 	Projects map[string]Project
@@ -16,11 +22,11 @@ type Registry struct {
 	RulesFn  map[string]Ruler
 }
 
-func (r *Registry) AddRule(ruler Ruler) {
-	if _, ok := r.RulesFn[ruler.GetSlug()]; ok {
+func (r *Registry) AddRule(rule Ruler) {
+	if _, ok := r.RulesFn[rule.GetSlug()]; ok {
 		return
 	}
-	r.RulesFn[ruler.GetSlug()] = ruler
+	r.RulesFn[rule.GetSlug()] = rule
 }
 
 func (r *Registry) ProcessProject(c *gitlab.Client, p *gitlab.Project, ruler Ruler) bool {
