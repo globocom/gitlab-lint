@@ -1,15 +1,23 @@
 basePath: /api/v1
 definitions:
-  rules.Level:
+  api.MetaResponse:
     properties:
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      total:
+      currentPage:
         type: integer
+      perPage:
+        type: integer
+      totalOfItems:
+        type: integer
+      totalOfPages:
+        type: integer
+    type: object
+  api.Response:
+    properties:
+      data:
+        type: object
+      meta:
+        $ref: '#/definitions/api.MetaResponse'
+        type: object
     type: object
   rules.Project:
     properties:
@@ -17,6 +25,27 @@ definitions:
         additionalProperties:
           type: integer
         type: object
+    type: object
+  rules.Rule:
+    properties:
+      description:
+        type: string
+      level:
+        type: string
+      namespaceId:
+        type: integer
+      namespacePath:
+        type: string
+      path:
+        type: string
+      pathWithNamespace:
+        type: string
+      projectId:
+        type: integer
+      ruleId:
+        type: string
+      webUrl:
+        type: string
     type: object
   rules.Stats:
     properties:
@@ -59,9 +88,14 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/rules.Level'
-            type: array
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  additionalProperties:
+                    type: integer
+                  type: object
+              type: object
       summary: Show levels
   /projects:
     get:
@@ -80,9 +114,12 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/rules.Project'
-            type: array
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  $ref: '#/definitions/rules.Project'
+              type: object
       summary: Show projects
   /projects/{id}:
     get:
@@ -102,8 +139,13 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  additionalProperties: true
+                  type: object
+              type: object
       summary: Show project by id
   /rules:
     get:
@@ -117,9 +159,12 @@ paths:
         "200":
           description: OK
           schema:
-            items:
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  $ref: '#/definitions/rules.Rule'
               type: object
-            type: array
       summary: Show rules
   /rules/{id}:
     get:
@@ -139,8 +184,13 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  additionalProperties: true
+                  type: object
+              type: object
       summary: Show rule by id
   /stats:
     get:
@@ -154,6 +204,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/rules.Stats'
+            allOf:
+            - $ref: '#/definitions/api.Response'
+            - properties:
+                Data:
+                  $ref: '#/definitions/rules.Stats'
+              type: object
       summary: Show stats
 swagger: "2.0"

@@ -17,7 +17,7 @@ import (
 // @ID get-stats
 // @Accept json
 // @Produce json
-// @Success 200 {object} rules.Stats
+// @Success 200 {object} Response{Data=rules.Stats}
 // @Router /stats [get]
 func (s *server) stats(c echo.Context) error {
 
@@ -37,5 +37,15 @@ func (s *server) stats(c echo.Context) error {
 		return c.JSON(http.StatusOK, rules.Stats{})
 	}
 
-	return c.JSON(http.StatusOK, statsAll[0])
+	response := Response{
+		Meta: MetaResponse{
+			CurrentPage:  1,
+			PerPage:      1,
+			TotalOfItems: 1,
+			TotalOfPages: 1,
+		},
+		Data: statsAll[0],
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

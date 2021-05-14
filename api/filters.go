@@ -7,6 +7,7 @@ import (
 
 	"github.com/globocom/gitlab-lint/db"
 	"github.com/globocom/gitlab-lint/rules"
+	"github.com/spf13/viper"
 )
 
 func parseIntFromString(str string) int {
@@ -36,8 +37,20 @@ func getSortFromString(str string) int {
 func CreateFilterFromQueryParam(d rules.Queryable, params url.Values) db.FindFilter {
 	filter := db.FindFilter{}
 
-	filter.Page = parseIntFromString(params.Get("page"))
-	filter.PerPage = parseIntFromString(params.Get("perPage"))
+	page := 1
+	if params.Get("page") != "" {
+		page = parseIntFromString(params.Get("page"))
+	}
+	filter.Page = page
+
+	perPage := viper.GetInt("db.perPage")
+	if params.Get("perPage") != "" {
+		perPage = parseIntFromString(params.Get("perPage"))
+		if perPage > 0 && perPage > viper.GetInt("db.maxPerPage") {
+			perPage = viper.GetInt("db.maxPerPage")
+		}
+	}
+	filter.PerPage = perPage
 
 	if searchStr := params.Get("q"); searchStr != "" {
 		filter.Query = db.BuildSearchQueryFromString(d, searchStr)

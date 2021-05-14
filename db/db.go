@@ -148,19 +148,8 @@ func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Q
 		)
 	}
 
-	perPage := viper.GetInt("db.PerPage")
-	if filter.PerPage > 0 {
-		if filter.PerPage <= viper.GetInt("db.maxPerPage") {
-			perPage = filter.PerPage
-		} else {
-			perPage = viper.GetInt("db.maxPerPage")
-		}
-	}
-
-	page := 0
-	if filter.Page > 0 {
-		page = filter.Page - 1
-	}
+	perPage := filter.PerPage
+	page := filter.Page - 1
 	opts.SetSkip(int64(page * perPage))
 	opts.SetLimit(int64(perPage))
 
