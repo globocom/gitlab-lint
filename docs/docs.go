@@ -259,6 +259,27 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/status": {
+            "get": {
+                "description": "get status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Show status services",
+                "operationId": "get-status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Status"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -288,6 +309,43 @@ var doc = `{
                 "meta": {
                     "type": "object",
                     "$ref": "#/definitions/api.MetaResponse"
+                }
+            }
+        },
+        "api.Service": {
+            "type": "object",
+            "properties": {
+                "elapsed": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.Status": {
+            "type": "object",
+            "properties": {
+                "project": {
+                    "type": "string"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.Service"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
