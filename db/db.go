@@ -42,6 +42,7 @@ type FindFilter struct {
 
 type DB interface {
 	Aggregate(d rules.Queryable, pipeline interface{}) ([]bson.M, error)
+	Count(d rules.Queryable, filter FindFilter) (int, error)
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
 	GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error)
@@ -188,4 +189,18 @@ func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Q
 	}
 
 	return items, nil
+}
+
+func (m mongoCollection) Count(d rules.Queryable, filter FindFilter) (int, error) {
+	log.Debug("[DB] Count...")
+	collection := m.session.Database(m.dbName).Collection(d.GetCollectionName())
+	ctx, _ := newDBContext()
+
+	totalOfItems, err := collection.CountDocuments(ctx, filter.Query)
+	if err != nil {
+		log.Errorf("[DB] Count: %s", err)
+		return 0, err
+	}
+
+	return int(totalOfItems), nil
 }

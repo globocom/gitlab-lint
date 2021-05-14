@@ -79,10 +79,15 @@ func processRules(rulesList []rules.Rule) error {
 	return nil
 }
 
-func insertStats(r *rules.Registry, projectsCount int) error {
+func insertStats(r *rules.Registry) error {
 	dbInstance, err := db.NewMongoSession()
 	if err != nil {
 		log.Errorf("[Collector] Error on create mongo session: %v", err)
+		return err
+	}
+
+	projectsCount, err := dbInstance.Count(&rules.Project{}, db.FindFilter{})
+	if err != nil {
 		return err
 	}
 
@@ -154,7 +159,6 @@ func main() {
 		Statistics:       gitlab.Bool(true),
 	}
 
-	var gitlabProjectsCount int
 	var wg sync.WaitGroup
 
 	for {
@@ -169,7 +173,6 @@ func main() {
 		wg.Add(1)
 		go worker(projects, git, &wg)
 
-		gitlabProjectsCount = resp.TotalItems
 		if resp.CurrentPage >= resp.TotalPages {
 			break
 		}
@@ -185,7 +188,7 @@ func main() {
 		log.Errorf("[Collector] Error on insert projects data: %v", err)
 	}
 
-	if err := insertStats(rules.MyRegistry, gitlabProjectsCount); err != nil {
+	if err := insertStats(rules.MyRegistry); err != nil {
 		log.Errorf("[Collector] Error on insert statistics data: %v", err)
 	}
 }
