@@ -9,10 +9,7 @@ import (
 
 	"github.com/globocom/gitlab-lint/rules"
 	"github.com/labstack/echo/v4"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // projects godoc
@@ -25,30 +22,9 @@ import (
 // @Success 200 {array} rules.Project
 // @Router /projects [get]
 func (s *server) projects(c echo.Context) error {
-	pageStr := ""
-	pageStr = c.QueryParam("page")
-	if pageStr == "" {
-		pageStr = "1"
-	}
 
-	page, err := strconv.Atoi(pageStr)
-	if err != nil {
-		return err
-	}
-
-	optProjects := options.Find()
-	optProjects.SetSort(
-		bson.D{primitive.E{Key: "pathwithnamespace", Value: 1}},
-	)
-	perPage := viper.GetInt("db.perPage")
-	optProjects.SetSkip(int64((page - 1) * perPage))
-	optProjects.SetLimit(int64(perPage))
-
-	project := &rules.Project{}
-	searchStr := c.QueryParam("q")
-	searchQuery := s.db.BuildSearchQueryFromString(project, searchStr)
-
-	data, err := s.db.GetAll(project, searchQuery, optProjects)
+	filter := CreateFilterFromQueryParam(&rules.Project{}, c.QueryParams())
+	data, err := s.db.GetAll(&rules.Project{}, filter)
 	if err != nil {
 		return err
 	}
@@ -78,11 +54,11 @@ func (s *server) projectById(c echo.Context) error {
 		return err
 	}
 
-	optRules := options.Find().SetSort(
-		bson.D{primitive.E{Key: "pathWithNamespace", Value: 1}},
-	)
-	queryRules := bson.M{"projectId": idInt}
-	projectRules, err := s.db.GetAll(&rules.Rule{}, queryRules, optRules)
+	filter := CreateFilterFromQueryParam(&rules.Rule{}, c.QueryParams())
+	filter.Sort.Field = "pathWithNamespace"
+	filter.Query = bson.M{"projectId": idInt}
+
+	projectRules, err := s.db.GetAll(&rules.Rule{}, filter)
 	if err != nil {
 		return err
 	}

@@ -39,6 +39,7 @@ func init() {
 	viper.SetDefault("db.operation.timeout", 3)
 	viper.SetDefault("db.perPage", 15)
 	viper.SetDefault("db.perInsert", 50)
+	viper.SetDefault("db.maxPerPage", 1000)
 
 	viper.SetDefault("sentry.dsn", "")
 	viper.SetDefault("sentry.timeout", 3)
