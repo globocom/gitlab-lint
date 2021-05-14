@@ -9,10 +9,18 @@ import (
 	sentryecho "github.com/getsentry/sentry-go/echo"
 	echo "github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/go-playground/validator.v9"
 )
 
 func httpErrorHandler(err error, c echo.Context) {
+	if err == mongo.ErrNoDocuments {
+		if jsonErr := c.JSON(http.StatusNotFound, newErrorResponse("Not Found")); jsonErr != nil {
+			c.Logger().Error(jsonErr)
+		}
+		return
+	}
+
 	if c.Response().Committed {
 		return
 	}
