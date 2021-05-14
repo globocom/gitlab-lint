@@ -19,6 +19,30 @@ definitions:
         $ref: '#/definitions/api.MetaResponse'
         type: object
     type: object
+  api.Service:
+    properties:
+      elapsed:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  api.Status:
+    properties:
+      project:
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/api.Service'
+        type: array
+      status:
+        type: string
+      version:
+        type: string
+    type: object
   rules.Project:
     properties:
       rules:
@@ -211,4 +235,18 @@ paths:
                   $ref: '#/definitions/rules.Stats'
               type: object
       summary: Show stats
+  /status:
+    get:
+      consumes:
+      - application/json
+      description: get status
+      operationId: get-status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Status'
+      summary: Show status services
 swagger: "2.0"

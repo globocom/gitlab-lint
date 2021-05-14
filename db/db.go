@@ -48,6 +48,7 @@ type DB interface {
 	GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error)
 	Insert(d rules.Queryable) (*mongo.InsertOneResult, error)
 	InsertMany(d rules.Queryable, i []interface{}) (*mongo.InsertManyResult, error)
+	Ping() error
 }
 
 func newDBContext() (context.Context, context.CancelFunc) {
@@ -59,7 +60,8 @@ func NewMongoSession() (DB, error) {
 	log.Debug("[DB] New mongo session")
 	dbURI := viper.GetString("mongodb.endpoint")
 
-	ctx, _ := newDBContext()
+	ctx, cancel := newDBContext()
+	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURI))
 	if err != nil {
 		log.Errorf("[DB] Error on create mongo session: %s", err)
@@ -192,4 +194,8 @@ func (m mongoCollection) Count(d rules.Queryable, filter FindFilter) (int, error
 	}
 
 	return int(totalOfItems), nil
+}
+
+func (m mongoCollection) Ping() error {
+	return m.session.Ping(context.Background(), readpref.Primary())
 }

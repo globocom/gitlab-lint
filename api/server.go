@@ -96,6 +96,7 @@ func NewServer() (Server, error) {
 	echoInstance.GET("/api/v1/levels", server.levels)
 	echoInstance.GET("/api/v1/stats", server.stats)
 	echoInstance.GET("/healthcheck", server.healthcheck)
+	echoInstance.GET("/status", server.status)
 	echoInstance.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	return server, nil
