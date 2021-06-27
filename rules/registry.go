@@ -9,6 +9,12 @@ import (
 	"github.com/xanzy/go-gitlab"
 )
 
+var MyRegistry = &Registry{
+	Projects: map[string]Project{},
+	Rules:    []Rule{},
+	RulesFn:  map[string]Ruler{},
+}
+
 type Registry struct {
 	mu       sync.Mutex
 	Projects map[string]Project
