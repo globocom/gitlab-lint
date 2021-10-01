@@ -45,6 +45,7 @@ type DB interface {
 	Count(d rules.Queryable, filter FindFilter) (int, error)
 	DeleteMany(d rules.Queryable, q bson.M) (*mongo.DeleteResult, error)
 	Get(d rules.Queryable, q bson.M, o *options.FindOneOptions) error
+	Update(d rules.Queryable, q bson.M, u bson.M, o *options.UpdateOptions) (*mongo.UpdateResult, error)
 	GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error)
 	Insert(d rules.Queryable) (*mongo.InsertOneResult, error)
 	InsertMany(d rules.Queryable, i []interface{}) (*mongo.InsertManyResult, error)
@@ -136,6 +137,13 @@ func (m *mongoCollection) Get(d rules.Queryable, q bson.M, o *options.FindOneOpt
 	collection := m.session.Database(m.dbName).Collection(d.GetCollectionName())
 	ctx, _ := newDBContext()
 	return collection.FindOne(ctx, q).Decode(d)
+}
+
+func (m *mongoCollection) Update(d rules.Queryable, q bson.M, u bson.M, o *options.UpdateOptions) (*mongo.UpdateResult, error) {
+	log.Debug("[DB] Update...")
+	collection := m.session.Database(m.dbName).Collection(d.GetCollectionName())
+	ctx, _ := newDBContext()
+	return collection.UpdateOne(ctx, q, u, o)
 }
 
 func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error) {
