@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	_ "github.com/globocom/gitlab-lint/config"
 	"github.com/globocom/gitlab-lint/db"
@@ -74,6 +76,66 @@ func processRules(rulesList []rules.Rule) error {
 	log.Debugf("[Collector] Inserting %d rules", len(temp))
 	if _, err := dbInstance.InsertMany(rules.Rule{}, temp); err != nil {
 		return err
+	}
+
+	return nil
+}
+func processIssues(registry *rules.Registry, git *gitlab.Client) error {
+	dbInstance, err := db.NewMongoSession()
+	if err != nil {
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
+		return err
+	}
+	// iterating over matched rules
+	for _, r := range registry.Rules {
+		// searching for opened issue for project and rule
+		pipeline := bson.M{"$and": bson.A{bson.M{"projectId": r.ProjectID}, bson.M{"ruleId": r.RuleID}, bson.M{"state": "opened"}}}
+
+		issue := &rules.Issue{}
+		err := dbInstance.Get(issue, pipeline, &options.FindOneOptions{})
+
+		// if any error
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+		// if no opened issue found -> create new issue and add to DB
+		if err != nil && err == mongo.ErrNoDocuments {
+			createdIssue, _, err := git.Issues.CreateIssue(r.ProjectID, &gitlab.CreateIssueOptions{Title: &r.RuleID})
+			if err != nil {
+				return err
+			}
+
+			if _, err := dbInstance.Insert(&rules.Issue{ProjectID: r.ProjectID, RuleID: r.RuleID, IssueID: createdIssue.ID,
+				WebURL: r.WebURL, Title: r.RuleID, Description: "Test", State: createdIssue.State}); err != nil {
+				return err
+			}
+			// Opened issue found
+		} else {
+			// fetch issue info from gitlab
+			gitIssue, _, err := git.Issues.GetIssue(issue.ProjectID, issue.IssueID)
+			if err != nil {
+				return err
+			}
+			// if issue was closed but rule still matched
+			if gitIssue.State != issue.State && gitIssue.State == "closed" {
+				// update old issue on DB
+				if _, err := dbInstance.Update(&rules.Issue{}, bson.M{"_id": issue.ID}, bson.M{"$set": bson.M{"state": gitIssue.State}}, &options.UpdateOptions{}); err != nil {
+					return err
+				}
+				desc := "test-reopened"
+				// create new issue
+				createdIssue, _, err := git.Issues.CreateIssue(r.ProjectID, &gitlab.CreateIssueOptions{Title: &r.RuleID, Description: &desc})
+				if err != nil {
+					return err
+				}
+				// add new issue to DB
+				if _, err := dbInstance.Insert(&rules.Issue{ProjectID: r.ProjectID, RuleID: r.RuleID, IssueID: createdIssue.ID,
+					WebURL: r.WebURL, Title: r.RuleID, Description: "Test-Reopened", State: createdIssue.State}); err != nil {
+					return err
+				}
+
+			}
+		}
 	}
 
 	return nil
@@ -190,5 +252,8 @@ func main() {
 
 	if err := insertStats(rules.MyRegistry); err != nil {
 		log.Errorf("[Collector] Error on insert statistics data: %v", err)
+	}
+	if err := processIssues(rules.MyRegistry, git); err != nil {
+		log.Errorf("[Collector] Error on processing issue: %v", err)
 	}
 }
