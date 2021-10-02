@@ -31,6 +31,14 @@ func (w *WithoutGitlabCI) GetLevel() string {
 	return LevelInfo
 }
 
+func (e *WithoutGitlabCI) GetName() string {
+	return e.Name
+}
+
+func (e *WithoutGitlabCI) GetDescription() string {
+	return e.Description
+}
+
 func NewWithoutGitlabCI() Ruler {
 	w := &WithoutGitlabCI{
 		Name:        "Without Gitlab CI",

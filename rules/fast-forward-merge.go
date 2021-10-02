@@ -23,6 +23,14 @@ func (w *NonFastForwardMerge) GetLevel() string {
 	return LevelPedantic
 }
 
+func (e *NonFastForwardMerge) GetName() string {
+	return e.Name
+}
+
+func (e *NonFastForwardMerge) GetDescription() string {
+	return e.Description
+}
+
 func NewNonFastForwardMerge() Ruler {
 	w := &NonFastForwardMerge{
 		Name:        "Non Fast-forward Merge",

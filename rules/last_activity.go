@@ -30,6 +30,14 @@ func (l *LastActivity) GetLevel() string {
 	return LevelWarning
 }
 
+func (e *LastActivity) GetName() string {
+	return e.Name
+}
+
+func (e *LastActivity) GetDescription() string {
+	return e.Description
+}
+
 func NewLastActivity() Ruler {
 	l := &LastActivity{
 		Name:        "Last Activity > 1 year",
