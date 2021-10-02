@@ -7,6 +7,8 @@ import "github.com/xanzy/go-gitlab"
 
 type Ruler interface {
 	Run(client *gitlab.Client, p *gitlab.Project) bool
+	GetName() string
+	GetDescription() string
 	GetSlug() string
 	GetLevel() string
 }

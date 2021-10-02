@@ -10,7 +10,6 @@ type Issue struct {
 	WebURL      string             `json:"webUrl" bson:"webUrl"`
 	Title       string             `json:"title" bson:"title"`
 	Description string             `json:"description" bson:"description"`
-	State       string             `json:"state" bson:"state"`
 }
 
 type Issues []Issue
