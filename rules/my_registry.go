@@ -11,6 +11,7 @@ var MyRegistry = &Registry{
 
 func init() {
 	MyRegistry.AddRule(NewEmptyRepository())
+	MyRegistry.AddRule(NewGoVendorFolder())
 	MyRegistry.AddRule(NewHasOpenIssues())
 	MyRegistry.AddRule(NewLastActivity())
 	MyRegistry.AddRule(NewNonFastForwardMerge())
