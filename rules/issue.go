@@ -3,7 +3,7 @@ package rules
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Issue struct {
-	ID          primitive.ObjectID `json:"_id"bson:"_id,omitempty"`
+	ID          primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 	ProjectID   int                `json:"projectId" bson:"projectId"`
 	RuleID      string             `json:"ruleId" bson:"ruleId"`
 	IssueID     int                `json:"issueId" bson:"issueId"`

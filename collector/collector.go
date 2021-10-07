@@ -105,7 +105,9 @@ func processIssues(registry *rules.Registry, git *gitlab.Client) error {
 		if err != nil && err == mongo.ErrNoDocuments {
 			title := fmt.Sprintf("[Gitlab-Lint] %s", registry.RulesFn[r.RuleID].GetName())
 			description := registry.RulesFn[r.RuleID].GetDescription()
-			createIssue(r, git, dbInstance, title, description)
+			if err := createIssue(r, git, dbInstance, title, description); err != nil {
+				return err
+			}
 			// Opened issue found
 		} else {
 			// fetch issue info from gitlab
@@ -119,7 +121,9 @@ func processIssues(registry *rules.Registry, git *gitlab.Client) error {
 				title := fmt.Sprintf("[Gitlab-Lint][Reopened] %s", registry.RulesFn[r.RuleID].GetName())
 				description := registry.RulesFn[r.RuleID].GetDescription()
 				// create new issue
-				createIssue(r, git, dbInstance, title, description)
+				if err := createIssue(r, git, dbInstance, title, description); err != nil {
+					return err
+				}
 			}
 		}
 	}
