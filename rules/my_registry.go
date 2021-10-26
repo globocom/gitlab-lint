@@ -13,4 +13,5 @@ func init() {
 	MyRegistry.AddRule(NewNonFastForwardMerge())
 	MyRegistry.AddRule(NewWithoutGitlabCI())
 	MyRegistry.AddRule(NewWithoutReadme())
+	MyRegistry.AddRule(NewWithoutMakefile())
 }
