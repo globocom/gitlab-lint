@@ -26,6 +26,14 @@ func (h *HasOpenIssues) GetLevel() string {
 	return LevelPedantic
 }
 
+func (e *HasOpenIssues) GetName() string {
+	return e.Name
+}
+
+func (e *HasOpenIssues) GetDescription() string {
+	return e.Description
+}
+
 func NewHasOpenIssues() Ruler {
 	h := &HasOpenIssues{
 		Name:        "Has Open Issues",

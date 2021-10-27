@@ -117,3 +117,11 @@ func (f *GoVendorFolder) GetSlug() string {
 func (f *GoVendorFolder) GetLevel() string {
 	return LevelWarning
 }
+
+func (e *GoVendorFolder) GetName() string {
+	return e.Name
+}
+
+func (e *GoVendorFolder) GetDescription() string {
+	return e.Description
+}

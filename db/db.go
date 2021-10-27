@@ -135,7 +135,7 @@ func (m *mongoCollection) Get(d rules.Queryable, q bson.M, o *options.FindOneOpt
 	log.Debug("[DB] Get...")
 	collection := m.session.Database(m.dbName).Collection(d.GetCollectionName())
 	ctx, _ := newDBContext()
-	return collection.FindOne(ctx, q).Decode(d)
+	return collection.FindOne(ctx, q, o).Decode(d)
 }
 
 func (m mongoCollection) GetAll(d rules.Queryable, filter FindFilter) ([]rules.Queryable, error) {

@@ -23,6 +23,14 @@ func (w *WithoutReadme) GetLevel() string {
 	return LevelError
 }
 
+func (e *WithoutReadme) GetName() string {
+	return e.Name
+}
+
+func (e *WithoutReadme) GetDescription() string {
+	return e.Description
+}
+
 func NewWithoutReadme() Ruler {
 	w := &WithoutReadme{
 		Name:        "Without Readme",

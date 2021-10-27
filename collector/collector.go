@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/xanzy/go-gitlab"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	_ "github.com/globocom/gitlab-lint/config"
 	"github.com/globocom/gitlab-lint/db"
@@ -76,6 +79,67 @@ func processRules(rulesList []rules.Rule) error {
 		return err
 	}
 
+	return nil
+}
+
+func processIssues(registry *rules.Registry, git *gitlab.Client) error {
+	dbInstance, err := db.NewMongoSession()
+	if err != nil {
+		log.Errorf("[Collector] Error on create mongo session: %v", err)
+		return err
+	}
+	// iterating over matched rules
+	for _, r := range registry.Rules {
+		// searching for opened issue for project and rule
+		pipeline := bson.M{"$and": bson.A{bson.M{"projectId": r.ProjectID}, bson.M{"ruleId": r.RuleID}}}
+
+		issue := &rules.Issue{}
+		err := dbInstance.Get(issue, pipeline, &options.FindOneOptions{Sort: bson.M{"issueId": -1}})
+
+		// if any error different than noDocumentFound
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+
+		// if no opened issue found -> create new issue and add to DB
+		if err != nil && err == mongo.ErrNoDocuments {
+			title := fmt.Sprintf("[Gitlab-Lint] %s", registry.RulesFn[r.RuleID].GetName())
+			description := registry.RulesFn[r.RuleID].GetDescription()
+			if err := createIssue(r, git, dbInstance, title, description); err != nil {
+				return err
+			}
+			// Opened issue found
+		} else {
+			// fetch issue info from gitlab
+			gitIssue, _, err := git.Issues.GetIssue(issue.ProjectID, issue.IssueID)
+			if err != nil {
+				return err
+			}
+			// if issue was closed but rule still matched
+			if gitIssue.State == "closed" {
+				// Open new issue with Reopened title
+				title := fmt.Sprintf("[Gitlab-Lint][Reopened] %s", registry.RulesFn[r.RuleID].GetName())
+				description := registry.RulesFn[r.RuleID].GetDescription()
+				// create new issue
+				if err := createIssue(r, git, dbInstance, title, description); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func createIssue(r rules.Rule, git *gitlab.Client, dbInstance db.DB, title string, description string) error {
+	createdIssue, _, err := git.Issues.CreateIssue(r.ProjectID, &gitlab.CreateIssueOptions{Title: &title, Description: &description})
+	if err != nil {
+		return err
+	}
+	if _, err := dbInstance.Insert(&rules.Issue{ProjectID: r.ProjectID, RuleID: r.RuleID, IssueID: createdIssue.IID,
+		WebURL: r.WebURL, Title: title, Description: r.Description}); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -190,5 +254,8 @@ func main() {
 
 	if err := insertStats(rules.MyRegistry); err != nil {
 		log.Errorf("[Collector] Error on insert statistics data: %v", err)
+	}
+	if err := processIssues(rules.MyRegistry, git); err != nil {
+		log.Errorf("[Collector] Error on processing issue: %v", err)
 	}
 }

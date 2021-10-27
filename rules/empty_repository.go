@@ -24,6 +24,14 @@ func (e *EmptyRepository) GetLevel() string {
 	return LevelError
 }
 
+func (e *EmptyRepository) GetName() string {
+	return e.Name
+}
+
+func (e *EmptyRepository) GetDescription() string {
+	return e.Description
+}
+
 func NewEmptyRepository() Ruler {
 	e := &EmptyRepository{
 		Name:        "Empty Repository",
