@@ -47,3 +47,11 @@ func (r *Registry) ProcessProject(c *gitlab.Client, p *gitlab.Project, ruler Rul
 	r.Projects[p.PathWithNamespace].Rules[rule.Level] += inc
 
 }
+
+func NewRegistry() *Registry {
+	return &Registry{
+		Projects: map[string]Project{},
+		Rules:    []Rule{},
+		RulesFn:  map[string]Ruler{},
+	}
+}

@@ -4,6 +4,7 @@ PRECOMMIT_COMMAND := $(shell { command -v pre-commit; } 2>/dev/null)
 setup: pre-commit
 	@go get github.com/codegangsta/gin
 	@go get github.com/swaggo/swag/cmd/swag@v1.6.7
+	@go install github.com/onsi/ginkgo/ginkgo@v1.16.4
 	@go mod tidy
 	@go get .
 
@@ -28,6 +29,9 @@ clean:
 
 swagger:
 	@swag init
+
+test:
+	go run github.com/onsi/ginkgo/ginkgo@v1.16.4 -r .
 
 lint:
 ifndef GOLANG_LINT_COMMAND
