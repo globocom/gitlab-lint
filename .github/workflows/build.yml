@@ -9,6 +9,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Go
         uses: actions/setup-go@v2
+      - name: Setup Project
+        run: make setup
       - name: Run build
         run: go build .
       - name: Run test
