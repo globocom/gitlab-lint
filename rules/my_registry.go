@@ -3,11 +3,7 @@
 
 package rules
 
-var MyRegistry = &Registry{
-	Projects: map[string]Project{},
-	Rules:    []Rule{},
-	RulesFn:  map[string]Ruler{},
-}
+var MyRegistry = NewRegistry()
 
 func init() {
 	MyRegistry.AddRule(NewEmptyRepository())
