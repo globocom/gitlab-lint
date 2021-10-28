@@ -1,10 +1,9 @@
 GOLANG_LINT_COMMAND := $(shell { command -v golangci-lint; } 2>/dev/null)
 PRECOMMIT_COMMAND := $(shell { command -v pre-commit; } 2>/dev/null)
 
-setup: pre-commit
+setup: pre-commit setup-test
 	@go get github.com/codegangsta/gin
 	@go get github.com/swaggo/swag/cmd/swag@v1.6.7
-	@go install github.com/onsi/ginkgo/ginkgo@v1.16.4
 	@go mod tidy
 	@go get .
 
@@ -42,6 +41,9 @@ ifndef GOLANG_LINT_COMMAND
 endif
 	@golangci-lint run --out-format=github-actions
 
+setup-test:
+	@go install github.com/onsi/ginkgo/ginkgo@v1.16.4
+
 pre-commit:
 ifndef PRECOMMIT_COMMAND
 	@echo "\nCommand 'pre-commit' not found!\n"
@@ -57,4 +59,4 @@ endif
 	@pre-commit install --hook-type pre-push
 
 
-.PHONY: setup run collector run-docker docker-stop docker-down lint clean pre-commit
+.PHONY: setup run collector run-docker docker-stop docker-down lint clean pre-commit setup-test
