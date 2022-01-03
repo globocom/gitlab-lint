@@ -1,4 +1,4 @@
-// Copyright (c) 2021, Paulo Ricardo Koch
+// Copyright (c) 2021, Gustavo Covas
 // Licensed under the BSD 3-Clause License
 
 package rules_test
@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Without Makefile Test", func() {
+var _ = Describe("Without HuskyCI Test", func() {
 	BeforeEach(func() {
 	})
 
@@ -18,20 +18,20 @@ var _ = Describe("Without Makefile Test", func() {
 			// Arrange
 
 			// Act
-			rule := NewWithoutMakefile()
+			rule := NewWithoutHuskyCI()
 
 			// Assert
 			Expect(rule.GetLevel()).To(Equal("info"))
 		})
 
-		It("GetSlug should return without-makefile", func() {
+		It("GetSlug should return without-husky-ci", func() {
 			// Arrange
 
 			// Act
-			rule := NewWithoutMakefile()
+			rule := NewWithoutHuskyCI()
 
 			// Assert
-			Expect(rule.GetSlug()).To(Equal("without-makefile"))
+			Expect(rule.GetSlug()).To(Equal("without-husky-ci"))
 		})
 	})
 })
