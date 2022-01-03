@@ -30,7 +30,7 @@ swagger:
 	@swag init
 
 test:
-	go run github.com/onsi/ginkgo/ginkgo@v1.16.4 -r .
+	go run github.com/onsi/ginkgo/ginkgo -r .
 
 lint:
 ifndef GOLANG_LINT_COMMAND
