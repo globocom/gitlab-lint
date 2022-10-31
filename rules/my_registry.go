@@ -14,4 +14,5 @@ func init() {
 	MyRegistry.AddRule(NewWithoutGitlabCI())
 	MyRegistry.AddRule(NewWithoutReadme())
 	MyRegistry.AddRule(NewWithoutMakefile())
+	MyRegistry.AddRule(NewWithoutDASThund())
 }
